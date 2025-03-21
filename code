@@ -1,0 +1,96 @@
+#This defines the table structure in MySQL.
+package com.sports.equipment.model;
+
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "sports_equipment")
+public class SportsEquipment {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, unique = true)
+    private String name;
+
+    @Column(nullable = false)
+    private int quantity;
+
+    public SportsEquipment() {}
+
+    public SportsEquipment(String name, int quantity) {
+        this.name = name;
+        this.quantity = quantity;
+    }
+
+    public Long getId() { return id; }
+    public String getName() { return name; }
+    public int getQuantity() { return quantity; }
+
+    public void setName(String name) { this.name = name; }
+    public void setQuantity(int quantity) { this.quantity = quantity; }
+}
+#This interfaces with the database to perform queries.
+
+
+package com.sports.equipment.repository;
+
+import com.sports.equipment.model.SportsEquipment;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface SportsEquipmentRepository extends JpaRepository<SportsEquipment, Long> {
+}
+#This handles the business logic.
+
+package com.sports.equipment.service;
+
+import com.sports.equipment.model.SportsEquipment;
+import com.sports.equipment.repository.SportsEquipmentRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import java.util.List;
+
+@Service
+public class SportsEquipmentService {
+
+    @Autowired
+    private SportsEquipmentRepository repository;
+
+    public List<SportsEquipment> getAllEquipment() {
+        return repository.findAll();
+    }
+}
+#This exposes a REST API to fetch equipment.
+package com.sports.equipment.controller;
+
+import com.sports.equipment.model.SportsEquipment;
+import com.sports.equipment.service.SportsEquipmentService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/equipment")
+public class SportsEquipmentController {
+
+    @Autowired
+    private SportsEquipmentService service;
+
+    @GetMapping("/all")
+    public List<SportsEquipment> getAllEquipment() {
+        return service.getAllEquipment();
+    }
+}
+#This connects Spring Boot to MySQL.
+spring.datasource.url=jdbc:mysql://localhost:3306/sports_db
+spring.datasource.username=root
+spring.datasource.password=your_password
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+
+
