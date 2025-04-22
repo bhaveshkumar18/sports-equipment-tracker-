@@ -1,0 +1,61 @@
+package com.example.sports_tracker;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import java.util.List;
+
+@Service
+public class EquipmentService {
+
+    @Autowired
+    private EquipmentRepository repository;
+
+    // Get all equipment from the database
+    public List<Equipment> getAllEquipment() {
+        return repository.findAll();
+    }
+
+    // Borrow an equipment item
+    public Equipment borrowEquipment(String name, String borrower) {
+        Equipment equipment = repository.findByName(name);
+
+        if (equipment == null) {
+            throw new RuntimeException("❌ ERROR: Equipment not found: " + name);
+        }
+
+        if (!"Available".equals(equipment.getStatus())) {
+            throw new RuntimeException("❌ ERROR: Equipment is already borrowed: " + name);
+        }
+
+        // Update status to "Borrowed"
+        equipment.setStatus("Borrowed");
+        equipment.setBorrower(borrower);
+
+        System.out.println("✅ SUCCESS: " + name + " borrowed by " + borrower);
+        return repository.save(equipment);
+    }
+
+
+    // Return an equipment item
+    public Equipment returnEquipment(String name) {
+        Equipment equipment = repository.findByName(name);
+
+        if (equipment == null) {
+            System.out.println("❌ ERROR: Equipment not found: " + name);
+            throw new RuntimeException("❌ ERROR: Equipment not found: " + name);
+        }
+
+        if (!"Borrowed".equals(equipment.getStatus())) {
+            System.out.println("❌ ERROR: Equipment is not currently borrowed, cannot return.");
+            throw new RuntimeException("❌ ERROR: Equipment is not currently borrowed: " + name);
+        }
+
+        // Update status and remove borrower
+        equipment.setStatus("Available");
+        equipment.setBorrower(null);
+
+        System.out.println("✅ SUCCESS: Equipment returned: " + name);
+        return repository.save(equipment);
+    }
+
+}
