@@ -1,0 +1,39 @@
+package com.example.sports_tracker;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/equipment")
+public class EquipmentController {
+    @Autowired
+    private EquipmentService service;
+
+    @GetMapping("/all")
+    public List<Equipment> getAll() {
+        return service.getAllEquipment();
+    }
+
+    @GetMapping("/borrow")  // Changed to GET to match your requirement
+    public ResponseEntity<?> borrow(@RequestParam String name, @RequestParam String borrower) {
+        try {
+            Equipment borrowedEquipment = service.borrowEquipment(name, borrower);
+            return ResponseEntity.ok(borrowedEquipment);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body("❌ ERROR: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/return")  // Changed to GET for consistency
+    public ResponseEntity<?> returnEquipment(@RequestParam String name) {
+        try {
+            Equipment returnedEquipment = service.returnEquipment(name);
+            return ResponseEntity.ok(returnedEquipment);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body("❌ ERROR: " + e.getMessage());
+        }
+    }
+}
